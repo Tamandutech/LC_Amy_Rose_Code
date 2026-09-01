@@ -5,8 +5,17 @@
  *      Author: Kelvin Novais
  */
 
-#include "peripherals.h"
 #include "robot.h"
+#include "peripherals.h"
+
+#include "Context/GlobalData.hpp"
+
+#include "Drivers/BLE/ble.hpp"
+#include "Drivers/Motors/motors.hpp"
+#include "Drivers/Sensors/Sensors.hpp"
+#include "Drivers/Vacuum/vacuum.hpp"
+
+#include <math.h>
 
 void setup(void) {
   // Initialize base timer
@@ -22,11 +31,51 @@ void setup(void) {
   HAL_ADC_Start_DMA(&ADC_2, (uint32_t *)adc2_buffer, ADC_BUFFER_SIZE);
   HAL_Delay(100);
 
+  motorsInitialize();
+  vacuumInitialize();
+  BLEInitialize();
+
+  BLEMessagePush("Starting calibration!");
+  HAL_Delay(1000);
+  BLEMessagePush("3");
+  HAL_Delay(1000);
+  BLEMessagePush("2");
+  HAL_Delay(1000);
+  BLEMessagePush("1");
+  HAL_Delay(1000);
+
+  sensorsCalibrate();
+  BLEMessagePush("Calibrated!");
+  HAL_Delay(500);
+
+  BLEMessagePush("RUN (1)\nSTOP (2)");
+
   // ...
 }
 
 void loop(void) {
-  // ...
+  switch(action) {
+  case RUN: run(); break;
+
+  case STOP: stop(); break;
+
+  default: break;
+  }
+
+  HAL_Delay(100);
 }
 
+void run() {
+  int dif = sensorsUpdateDirection();
 
+  vacuumPwm(VACUUM_PWM);
+
+  motorsPwmRight(MOTOR_PWM - dif);
+  motorsPwmLeft(MOTOR_PWM + dif);
+}
+
+void stop() {
+  motorsStop();
+  HAL_Delay(500);
+  vacuumPwm(0);
+}

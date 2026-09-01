@@ -17,6 +17,9 @@
 EXTERN_C void setup(void);
 EXTERN_C void loop(void);
 
+void run();
+void stop();
+
 #undef EXTERN_C
 
 #endif /* ROBOT_H_ */
