@@ -28,22 +28,21 @@ void BLEMessagePush(const char *message) {
 
   snprintf(tx_buffer, MESSAGE_BUFFER_SIZE, "%s\n", message);
 
-  HAL_UART_Transmit_DMA(&BLE_BUS, (uint8_t *)tx_buffer, strlen(tx_buffer));
+  HAL_UART_Transmit(&BLE_BUS, (uint8_t *)tx_buffer, strlen(tx_buffer),
+                    MESSAGE_DELAY);
 }
 
+extern "C" {
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
   // Check if the callback was triggered by BLE UART instance, ignore otherwise
   if(huart->Instance == USART1) {
+    extern char g;
+
     // Check the received character, and update the action acordingly
-    if(rx_buffer[0] == '1') {
-      action = RUN;
-    } else if(rx_buffer[0] == '2') {
-      action = STOP;
-    } else {
-      action = NONE;
-    }
+    g = rx_buffer[0];
 
     // Request UART to receive another character
-    HAL_UART_Receive_DMA(&BLE_BUS, rx_buffer, 1);
+    HAL_UART_Receive_DMA(&BLE_BUS, (uint8_t *)rx_buffer, 1);
   }
+}
 }

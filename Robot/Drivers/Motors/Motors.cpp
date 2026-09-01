@@ -5,10 +5,10 @@
  *      Author: Usuário
  */
 
+#include "../Motors/Motors.hpp"
+
 #include "../../Context/GlobalData.hpp"
 #include "../../peripherals.h"
-
-#include "Motors.hpp"
 
 #include <algorithm>
 

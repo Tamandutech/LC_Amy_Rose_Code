@@ -124,3 +124,25 @@ int sensorsUpdateDirection() {
 
   return dif;
 }
+
+int sensorsUpdateDirection_TEST() {
+  int left_weight = 0, right_weight = 0;
+
+  // read left side sensors
+  for(int i = N_IR_SENSORS / 2 - 1; i >= 0; i--) {
+    int value = *irSensorsRawValues[i];
+
+    if(value < (int)sensorValuesMean[i]) left_weight += i + 1;
+  }
+
+  // read right side sensors
+  for(int i = N_IR_SENSORS / 2; i < N_IR_SENSORS; i++) {
+    int value = *irSensorsRawValues[i];
+
+    if(value < (int)sensorValuesMean[i]) left_weight += N_IR_SENSORS - i;
+  }
+
+  int dif = right_weight - left_weight;
+
+  return dif;
+}

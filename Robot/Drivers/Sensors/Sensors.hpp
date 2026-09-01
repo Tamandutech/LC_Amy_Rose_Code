@@ -12,4 +12,6 @@ void sensorsCalibrate();
 
 int sensorsUpdateDirection();
 
+int sensorsUpdateDirection_TEST();
+
 #endif /* DRIVERS_SENSORS_SENSORS_HPP_ */
