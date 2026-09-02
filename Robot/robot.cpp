@@ -14,15 +14,12 @@
 #include "Drivers/Motors/Motors.hpp"
 #include "Drivers/Sensors/Sensors.hpp"
 #include "Drivers/Vacuum/vacuum.hpp"
-#include "stm32g4xx_hal.h"
 #include "stm32g4xx_hal_uart.h"
 
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <math.h>
-
-char g = 0;
 
 void setup(void) {
   // Initialize base timer
@@ -42,7 +39,7 @@ void setup(void) {
   vacuumInitialize();
   BLEInitialize();
 
-  BLEMessagePush("Starting calibration...");
+  BLEMessagePush("Starting calibration!");
   HAL_Delay(1000);
   BLEMessagePush("3");
   HAL_Delay(1000);
@@ -60,31 +57,10 @@ void setup(void) {
   // ...
 }
 
-void loop(void) {
-  /*
-  switch(action) {
-  case RUN: BLEMessagePush("Running"); break;
-
-  case STOP: stop(); break;
-
-  default: stop();
-  }
-
-  action = NONE;
-  */
-
-  char buff[256];
-
-  snprintf(buff, 256, "Action %c\n", g);
-  HAL_UART_Transmit(&BLE_BUS, (const uint8_t *)buff, strlen(buff), 10);
-
-  HAL_Delay(500);
-}
-
 void run() {
   int dif = sensorsUpdateDirection();
 
-  vacuumPwm(VACUUM_PWM + abs(dif));
+  vacuumPwm(VACUUM_PWM);
 
   motorsPwmRight(MOTOR_PWM - dif);
   motorsPwmLeft(MOTOR_PWM + dif);
@@ -94,4 +70,18 @@ void stop() {
   motorsStop();
   HAL_Delay(500);
   vacuumPwm(0);
+
+  BLEMessagePush("Stop!");
+}
+
+void loop(void) {
+  switch(action) {
+  case RUN: run(); break;
+
+  case STOP: stop(); break;
+
+  default: break;
+  }
+
+  HAL_Delay(500);
 }

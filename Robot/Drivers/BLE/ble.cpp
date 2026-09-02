@@ -13,9 +13,7 @@
 
 #include "ble.hpp"
 
-static uint8_t rx_buffer[32];
-
-volatile Action action = NONE;
+static uint8_t rx_buffer[32] = {0};
 
 void BLEInitialize() {
   HAL_UART_Receive_DMA(&BLE_BUS, (uint8_t *)rx_buffer, 1);
@@ -34,12 +32,13 @@ void BLEMessagePush(const char *message) {
 
 extern "C" {
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-  // Check if the callback was triggered by BLE UART instance, ignore otherwise
   if(huart->Instance == USART1) {
-    extern char g;
-
-    // Check the received character, and update the action acordingly
-    g = rx_buffer[0];
+    if(rx_buffer[0] == '1') {
+      action = RUN;
+    } else if(rx_buffer[0] == '2') {
+      action = STOP;
+    }
+    // DO NOT use "else"
 
     // Request UART to receive another character
     HAL_UART_Receive_DMA(&BLE_BUS, (uint8_t *)rx_buffer, 1);
