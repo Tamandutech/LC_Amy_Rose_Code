@@ -63,7 +63,7 @@ void run() {
   while(action == RUN) {
     int u = pidEvaluate(sensorsError);
 
-    vacuumPwm(VACUUM_PWM);
+    vacuumPwm(VACUUM_PWM + abs(u));
 
     motorsPwmRight(MOTOR_PWM - u);
     motorsPwmLeft(MOTOR_PWM + u);
