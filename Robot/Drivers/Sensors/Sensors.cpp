@@ -9,6 +9,7 @@
 #include "../../peripherals.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
 
@@ -21,6 +22,19 @@
 
 #define MIN_RAW_VALUE 0
 #define MAX_RAW_VALUE 4095
+
+#define MAX_SENSOR_VALUE 1000
+
+// TODO: definir valores empiricos
+#define MIN_EMPIRICAL_RAW_VALUE 0
+#define MAX_EMPIRICAL_RAW_VALUE 4095
+#define DENOMINATOR (MAX_EMPIRICAL_RAW_VALUE - MIN_EMPIRICAL_RAW_VALUE)
+
+#define CENTRAL_POSITION 5500
+
+#define FIRST_CENTRAL 2
+#define LAST_CENTRAL  13
+
 
 const volatile uint32_t *const irSensorsRawValues[N_IR_SENSORS] = {
     // Left
@@ -45,7 +59,14 @@ const volatile uint32_t *const irSensorsRawValues[N_IR_SENSORS] = {
     [R_1] = &adc1_buffer[5],
     [R_2] = &adc1_buffer[4]};
 
+uint32_t sensorValue_[N_IR_SENSORS] = {0};
 
+uint16_t position         = 0;
+uint16_t previousPosition = 0;
+
+volatile int sensorsError = 0;
+
+/*
 uint32_t sensorsValuesMin[N_IR_SENSORS] = {0};
 uint32_t sensorsValuesMax[N_IR_SENSORS] = {0};
 
@@ -124,25 +145,41 @@ int sensorsUpdateDirection() {
 
   return dif;
 }
+*/
 
-int sensorsUpdateDirection_TEST() {
-  int left_weight = 0, right_weight = 0;
+void sensorsReadCalibrated() {
 
-  // read left side sensors
-  for(int i = N_IR_SENSORS / 2 - 1; i >= 0; i--) {
-    int value = *irSensorsRawValues[i];
+  for(uint8_t i = 0; i < N_IR_SENSORS; i++) {
+    uint16_t value = 0;
 
-    if(value < (int)sensorValuesMean[i]) left_weight += i + 1;
+    value = ((uint16_t)*irSensorsRawValues[i] - MIN_EMPIRICAL_RAW_VALUE) *
+            MAX_RAW_VALUE / DENOMINATOR;
+
+    value = MAX_SENSOR_VALUE - value;
+
+    // TODO: verificacao do valor entra max e min
+
+    sensorValue_[i] = value;
+  }
+}
+
+void sensorsUpdate() {
+  uint32_t weightTotal = 0;
+  uint16_t total       = 0;
+
+  // bool isOnLine = false;
+  sensorsReadCalibrated();
+
+  // TODO: sensor on line
+  for(uint16_t i = FIRST_CENTRAL; i <= LAST_CENTRAL; i++) {
+    uint16_t value = sensorValue_[i];
+
+    weightTotal += value * ((i - FIRST_CENTRAL) * MAX_SENSOR_VALUE);
+    total += value;
   }
 
-  // read right side sensors
-  for(int i = N_IR_SENSORS / 2; i < N_IR_SENSORS; i++) {
-    int value = *irSensorsRawValues[i];
+  previousPosition = weightTotal / total;
+  position         = previousPosition;
 
-    if(value < (int)sensorValuesMean[i]) left_weight += N_IR_SENSORS - i;
-  }
-
-  int dif = right_weight - left_weight;
-
-  return dif;
+  sensorsError = position - CENTRAL_POSITION;
 }

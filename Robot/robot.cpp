@@ -12,8 +12,10 @@
 
 #include "Drivers/BLE/ble.hpp"
 #include "Drivers/Motors/Motors.hpp"
+#include "Drivers/PID/PID.hpp"
 #include "Drivers/Sensors/Sensors.hpp"
 #include "Drivers/Vacuum/vacuum.hpp"
+#include "stm32g4xx_hal.h"
 #include "stm32g4xx_hal_uart.h"
 
 #include <cstdint>
@@ -58,12 +60,16 @@ void setup(void) {
 }
 
 void run() {
-  int dif = sensorsUpdateDirection();
+  while(action == RUN) {
+    int u = pidEvaluate(sensorsError);
 
-  vacuumPwm(VACUUM_PWM);
+    vacuumPwm(VACUUM_PWM);
 
-  motorsPwmRight(MOTOR_PWM - dif);
-  motorsPwmLeft(MOTOR_PWM + dif);
+    motorsPwmRight(MOTOR_PWM - u);
+    motorsPwmLeft(MOTOR_PWM + u);
+
+    HAL_Delay(1);
+  }
 }
 
 void stop() {
@@ -72,6 +78,8 @@ void stop() {
   vacuumPwm(0);
 
   BLEMessagePush("Stop!");
+
+  action = NONE;
 }
 
 void loop(void) {
