@@ -18,9 +18,8 @@
 #define VACUUM_PWM 100
 
 
-enum Action { NONE, RUN, STOP };
+enum Action { NONE, RUN, STOP, CALIBRATE };
 
 extern volatile Action action;
-
 
 #endif /* CONTEXT_GLOBALDATA_HPP_ */

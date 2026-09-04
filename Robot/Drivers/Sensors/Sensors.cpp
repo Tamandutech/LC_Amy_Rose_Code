@@ -71,6 +71,15 @@ uint32_t sensorsValuesMax[N_IR_SENSORS] = {0};
 
 void sensorsCalibrate() {
 
+  BLEMessagePush("Starting calibration!");
+  HAL_Delay(1000);
+  BLEMessagePush("3");
+  HAL_Delay(1000);
+  BLEMessagePush("2");
+  HAL_Delay(1000);
+  BLEMessagePush("1");
+
+
   for(int i = 0; i < N_IR_SENSORS; i++) {
     sensorsValuesMax[i] = MIN_RAW_VALUE;
     sensorsValuesMin[i] = MAX_RAW_VALUE;
@@ -98,6 +107,8 @@ void sensorsCalibrate() {
     HAL_UART_Transmit(&BLE_BUS, (uint8_t *)tx_buffer, strlen(tx_buffer),
                       MESSAGE_DELAY);
   }
+
+  action = NONE;
 }
 
 void sensorsReadCalibrated() {

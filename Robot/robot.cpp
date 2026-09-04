@@ -41,20 +41,9 @@ void setup(void) {
   vacuumInitialize();
   BLEInitialize();
 
-  BLEMessagePush("Starting calibration!");
-  HAL_Delay(1000);
-  BLEMessagePush("3");
-  HAL_Delay(1000);
-  BLEMessagePush("2");
-  HAL_Delay(1000);
-  BLEMessagePush("1");
-  HAL_Delay(1000);
+  HAL_Delay(5000);
 
-  sensorsCalibrate();
-  BLEMessagePush("Calibrated!");
-  HAL_Delay(500);
-
-  BLEMessagePush("RUN (1)\nSTOP (2)");
+  BLEMessagePush("RUN (1)\nSTOP (2)\nCALIBRATE (3)");
 
   // ...
 }
@@ -87,6 +76,8 @@ void loop(void) {
   case RUN: run(); break;
 
   case STOP: stop(); break;
+
+  case CALIBRATE: sensorsCalibrate(); break;
 
   default: break;
   }
