@@ -8,11 +8,8 @@
 #ifndef DRIVERS_PID_PID_HPP_
 #define DRIVERS_PID_PID_HPP_
 
-#define kp 0
+#define kp 0.1
 #define kd 0
-
-extern volatile float dd;
-extern volatile float dp;
 
 float pidEvaluate(const int error);
 

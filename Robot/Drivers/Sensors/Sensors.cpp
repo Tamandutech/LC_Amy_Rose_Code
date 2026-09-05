@@ -59,15 +59,15 @@ const volatile uint32_t *const irSensorsRawValues[N_IR_SENSORS] = {
     [R_1] = &adc1_buffer[5],
     [R_2] = &adc1_buffer[4]};
 
-uint32_t sensorValue_[N_IR_SENSORS] = {0};
+int sensorValue_[N_IR_SENSORS] = {0};
 
-uint16_t position         = 0;
-uint16_t previousPosition = 0;
+int position         = 0;
+int previousPosition = 0;
 
 volatile int sensorsError = 0;
 
-uint32_t sensorsValuesMin[N_IR_SENSORS] = {0};
-uint32_t sensorsValuesMax[N_IR_SENSORS] = {0};
+int sensorsValuesMin[N_IR_SENSORS] = {0};
+int sensorsValuesMax[N_IR_SENSORS] = {0};
 
 void sensorsCalibrate() {
 
@@ -88,7 +88,7 @@ void sensorsCalibrate() {
   for(int s = 1; s <= SAMPLES; s++) {
 
     for(int i = 0; i < N_IR_SENSORS; i++) {
-      uint32_t value      = *irSensorsRawValues[i];
+      int value           = *irSensorsRawValues[i];
       sensorsValuesMax[i] = std::max(sensorsValuesMax[i], value);
       sensorsValuesMin[i] = std::min(sensorsValuesMin[i], value);
     }
@@ -113,12 +113,12 @@ void sensorsCalibrate() {
 
 void sensorsReadCalibrated() {
 
-  for(uint8_t i = 0; i < N_IR_SENSORS; i++) {
-    uint16_t value = 0;
+  for(int i = 0; i < N_IR_SENSORS; i++) {
+    int value = 0;
 
-    uint32_t denominator = sensorsValuesMax[i] - sensorsValuesMin[i];
+    int denominator = sensorsValuesMax[i] - sensorsValuesMin[i];
 
-    value = (((uint16_t)*irSensorsRawValues[i] - sensorsValuesMin[i]) *
+    value = (((int)*irSensorsRawValues[i] - sensorsValuesMin[i]) *
              MAX_SENSOR_VALUE) /
             denominator;
 
@@ -131,15 +131,15 @@ void sensorsReadCalibrated() {
 }
 
 void sensorsUpdate() {
-  uint16_t weightTotal = 0;
-  uint16_t total       = 0;
+  int weightTotal = 0;
+  int total       = 0;
 
   // bool isOnLine = false;
   sensorsReadCalibrated();
 
   // TODO: sensor on line
-  for(uint16_t i = FIRST_CENTRAL; i <= LAST_CENTRAL; i++) {
-    uint16_t value = sensorValue_[i];
+  for(int i = FIRST_CENTRAL; i <= LAST_CENTRAL; i++) {
+    int value = sensorValue_[i];
 
     weightTotal += value * ((i - FIRST_CENTRAL) * MAX_SENSOR_VALUE);
     total += value;

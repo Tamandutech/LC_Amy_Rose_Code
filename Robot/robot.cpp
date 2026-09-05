@@ -42,15 +42,7 @@ void setup(void) {
 
   char PID_Params[128];
 
-  float x = 0, y = 0;
-
-  HAL_UART_Receive(&BLE_BUS, (uint8_t *)PID_Params, 9, 100000);
-
-  sscanf(PID_Params, "%f %f", &x, &y);
-
-  dp = x - kp;
-
-  dd = y - kd;
+  HAL_UART_Transmit(&BLE_BUS, (uint8_t *)PID_Params, strlen(PID_Params), 25);
 
   HAL_Delay(5000);
   BLEInitialize();

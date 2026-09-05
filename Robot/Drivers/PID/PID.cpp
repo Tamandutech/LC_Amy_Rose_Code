@@ -20,15 +20,16 @@ volatile float dp = 0;
 float pidEvaluate(const int error) {
   float P   = error;
   float D   = error - pidLastError;
-  float pid = ((kp + dp) * P) + ((kd + dd) * D);
-
+  float pid = ((kp)*P) + ((kd)*D);
+  /*
   char tx_buffer[128];
 
   snprintf(tx_buffer, sizeof(tx_buffer),
-           "pid: %f | error: %d | pwmL: %f | pwmR: %f\n", pid, error,
-           MOTOR_PWM + pid, MOTOR_PWM - pid);
+           "pid: %d | error: %d | pwmL: %d | pwmR: %d\n", (int)pid, error,
+           MOTOR_PWM + (int)pid, MOTOR_PWM - (int)pid);
 
   HAL_UART_Transmit(&BLE_BUS, (uint8_t *)tx_buffer, strlen(tx_buffer), 25);
+  */
 
   pidLastError = error;
 
