@@ -37,10 +37,10 @@ void motorsPwmRight(int duty) {
 
   if(duty > 0) {
     HAL_GPIO_WritePin(MOTOR_RIGHT_DIRECTION_PORT, MOTOR_RIGHT_DIRECTION_PIN,
-                      GPIO_PIN_SET);
+                      GPIO_PIN_RESET);
   } else {
     HAL_GPIO_WritePin(MOTOR_RIGHT_DIRECTION_PORT, MOTOR_RIGHT_DIRECTION_PIN,
-                      GPIO_PIN_RESET);
+                      GPIO_PIN_SET);
     duty = -duty;
   }
 

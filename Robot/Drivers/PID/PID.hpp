@@ -11,6 +11,9 @@
 #define kp 0
 #define kd 0
 
+extern volatile float dd;
+extern volatile float dp;
+
 float pidEvaluate(const int error);
 
 

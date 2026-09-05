@@ -10,9 +10,11 @@
 
 void sensorsCalibrate();
 
-int sensorsUpdateDirection();
+void sensorsUpdate();
 
 int sensorsUpdateDirection_TEST();
+
+void sensorsTest();
 
 extern volatile int sensorsError;
 

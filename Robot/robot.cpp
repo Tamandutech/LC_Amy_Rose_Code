@@ -39,20 +39,34 @@ void setup(void) {
 
   motorsInitialize();
   vacuumInitialize();
-  BLEInitialize();
+
+  char PID_Params[128];
+
+  float x = 0, y = 0;
+
+  HAL_UART_Receive(&BLE_BUS, (uint8_t *)PID_Params, 9, 100000);
+
+  sscanf(PID_Params, "%f %f", &x, &y);
+
+  dp = x - kp;
+
+  dd = y - kd;
 
   HAL_Delay(5000);
+  BLEInitialize();
 
-  BLEMessagePush("RUN (1)\nSTOP (2)\nCALIBRATE (3)");
+  BLEMessagePush("RUN (1)\nSTOP (2)\nCALIBRATE (3)\nTEST SENSORS (4)");
 
   // ...
 }
 
 void run() {
   while(action == RUN) {
+    sensorsUpdate();
+
     int u = pidEvaluate(sensorsError);
 
-    vacuumPwm(VACUUM_PWM + abs(u));
+    // vacuumPwm(VACUUM_PWM + abs(u));
 
     motorsPwmRight(MOTOR_PWM - u);
     motorsPwmLeft(MOTOR_PWM + u);
@@ -64,12 +78,37 @@ void run() {
 void stop() {
   motorsStop();
   HAL_Delay(500);
-  vacuumPwm(0);
+  // vacuumPwm(0);
 
   BLEMessagePush("Stop!");
 
   action = NONE;
 }
+
+void testSensors() {
+  while(action == TEST_SENSORS) {
+    sensorsTest();
+    HAL_Delay(100);
+  }
+}
+
+/*
+void editParams() {
+  static uint8_t rx_buffer[32];
+
+  BLEMessagePush("kp = ");
+  HAL_UART_Receive(&BLE_BUS, (uint8_t *)rx_buffer, 4, 10000);
+  float x = (float)rx_buffer[0] + (float)rx_buffer[1] / 10.0;
+
+  dp = x - kp;
+
+  BLEMessagePush("kd = ");
+  HAL_UART_Receive(&BLE_BUS, (uint8_t *)rx_buffer, 4, 10000);
+  x = (float)rx_buffer[0] + (float)rx_buffer[1] / 10.0;
+
+  dd = x - kd;
+}
+*/
 
 void loop(void) {
   switch(action) {
@@ -78,6 +117,8 @@ void loop(void) {
   case STOP: stop(); break;
 
   case CALIBRATE: sensorsCalibrate(); break;
+
+  case TEST_SENSORS: sensorsTest(); break;
 
   default: break;
   }

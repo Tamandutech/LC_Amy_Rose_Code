@@ -39,6 +39,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
       action = STOP;
     } else if(rx_buffer[0] == '3') {
       action = CALIBRATE;
+    } else if(rx_buffer[0] == '4') {
+      action = TEST_SENSORS;
     }
     // DO NOT use "else"
 
