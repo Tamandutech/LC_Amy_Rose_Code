@@ -14,14 +14,20 @@
 #include "Drivers/Motors/Motors.hpp"
 #include "Drivers/PID/PID.hpp"
 #include "Drivers/Sensors/Sensors.hpp"
-#include "Drivers/Vacuum/vacuum.hpp"
 #include "stm32g4xx_hal.h"
 #include "stm32g4xx_hal_uart.h"
 
+#include "Context/GlobalData.cpp"
+#include "Drivers/Battery/Battery.hpp"
+
+#include "Drivers/Vacuum/vacuum.hpp"
+#include <cerrno>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <math.h>
+#include <stdio.h>
+#include <string>
 
 void setup(void) {
   // Initialize base timer
@@ -40,17 +46,25 @@ void setup(void) {
   motorsInitialize();
   vacuumInitialize();
 
-  char PID_Params[128];
-
-  HAL_UART_Transmit(&BLE_BUS, (uint8_t *)PID_Params, strlen(PID_Params), 25);
 
   HAL_Delay(5000);
+
+
+  // editParams();
+
   BLEInitialize();
 
   BLEMessagePush("RUN (1)\nSTOP (2)\nCALIBRATE (3)\nTEST SENSORS (4)");
 
-  // ...
+  // char batBuffer[16];
+
+  // snprintf(batBuffer, 16, "%f", BatteryVoltageGet());
+
+  // BLEMessagePush(batBuffer);
+
+  // ...s
 }
+
 
 void run() {
   while(action == RUN) {
@@ -58,7 +72,7 @@ void run() {
 
     int u = pidEvaluate(sensorsError);
 
-    // vacuumPwm(VACUUM_PWM + abs(u));
+    vacuumPwm(VACUUM_PWM);
 
     motorsPwmRight(MOTOR_PWM - u);
     motorsPwmLeft(MOTOR_PWM + u);
@@ -70,7 +84,7 @@ void run() {
 void stop() {
   motorsStop();
   HAL_Delay(500);
-  // vacuumPwm(0);
+  vacuumPwm(0);
 
   BLEMessagePush("Stop!");
 
@@ -86,21 +100,16 @@ void testSensors() {
 
 /*
 void editParams() {
-  static uint8_t rx_buffer[32];
+  char PID_Params[128];
 
-  BLEMessagePush("kp = ");
-  HAL_UART_Receive(&BLE_BUS, (uint8_t *)rx_buffer, 4, 10000);
-  float x = (float)rx_buffer[0] + (float)rx_buffer[1] / 10.0;
+  BLEMessagePush("Insira: kp, kd, velocidade, succao");
 
-  dp = x - kp;
+  HAL_UART_Receive(&BLE_BUS, (uint8_t *)PID_Params, 9, 10000);
 
-  BLEMessagePush("kd = ");
-  HAL_UART_Receive(&BLE_BUS, (uint8_t *)rx_buffer, 4, 10000);
-  x = (float)rx_buffer[0] + (float)rx_buffer[1] / 10.0;
-
-  dd = x - kd;
+  sscanf(PID_Params, "%f %f", &kp, &kd);
 }
 */
+
 
 void loop(void) {
   switch(action) {
@@ -115,5 +124,5 @@ void loop(void) {
   default: break;
   }
 
-  HAL_Delay(500);
+  HAL_Delay(10);
 }

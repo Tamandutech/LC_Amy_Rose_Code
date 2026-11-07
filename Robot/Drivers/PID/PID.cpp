@@ -10,12 +10,11 @@
 #include <cstring>
 
 #include "../../Context/GlobalData.hpp"
-#include "../../peripherals.h"
 
 float pidLastError = 0;
 
-volatile float dd = 0;
-volatile float dp = 0;
+float kp = 0.35;
+float kd = 2;
 
 float pidEvaluate(const int error) {
   float P   = error;

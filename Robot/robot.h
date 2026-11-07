@@ -16,6 +16,7 @@
 
 EXTERN_C void setup(void);
 EXTERN_C void loop(void);
+void          editParams();
 
 #undef EXTERN_C
 

@@ -11,11 +11,11 @@
 #define MESSAGE_BUFFER_SIZE 64
 #define MESSAGE_DELAY       20
 
-#define MOTOR_MAX_PWM 700
+#define MOTOR_MAX_PWM 800
 #define MOTOR_MIN_PWM 0
-#define MOTOR_PWM     350
+// #define MOTOR_PWM     350
 
-#define VACUUM_PWM 100
+#define VACUUM_PWM 900
 
 
 enum Action { NONE, RUN, STOP, CALIBRATE, TEST_SENSORS };

@@ -7,4 +7,7 @@
 
 #include "GlobalData.hpp"
 
+
 volatile Action action = NONE;
+
+int MOTOR_PWM = 350;
